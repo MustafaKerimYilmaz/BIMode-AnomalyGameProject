@@ -1,0 +1,4 @@
+repository "BIMode - Anomaly Game/BIMode - Anomaly Game@18968193779726@cloud"
+  path "/"
+    br "/main"
+    co "/main"
