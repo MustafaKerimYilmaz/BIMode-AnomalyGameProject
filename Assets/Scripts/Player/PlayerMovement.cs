@@ -27,38 +27,35 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        _xInput = Input.GetAxis("Horizontal");
-        _yInput = Input.GetAxis("Vertical");
+        if (GameMenuManager.isGamePaused) return;
+
+        _xInput = Input.GetAxisRaw("Horizontal");
+        _yInput = Input.GetAxisRaw("Vertical");
 
         _mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         _mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-        MovePlayer();
         HandleMouseLock();
+    }
+
+    private void FixedUpdate()
+    {
+        MovePlayer();
     }
 
     private void HandleMouseLock()
     {
-        //Body Rotation
         transform.Rotate(Vector3.up * _mouseX);
-
-        //Camera Rotation
         _xRotation -= _mouseY;
-
-        //Head Flip Preventation
         _xRotation = Mathf.Clamp(_xRotation, -90f, 90f);
-
         cameraTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
     }
 
     private void MovePlayer()
     {
         Vector3 moveDirection = transform.right * _xInput + transform.forward * _yInput;
-
         Vector3 targetVelocity = moveDirection.normalized * moveSpeed;
-
         targetVelocity.y = _rb.linearVelocity.y;
-
         _rb.linearVelocity = targetVelocity;
     }
 }

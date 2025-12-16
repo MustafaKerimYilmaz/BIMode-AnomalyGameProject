@@ -66,5 +66,5 @@
     "explorer.fileNesting.patterns": {
         "*.sln": "*.csproj"
     },
-    "dotnet.defaultSolution": "BIMode-AnomalyGameProject-main.sln"
+    "dotnet.defaultSolution": "BIMode-AnomalyGameProject.sln"
 }
