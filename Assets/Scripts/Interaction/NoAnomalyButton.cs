@@ -6,6 +6,7 @@ public class NoAnomalyButton : MonoBehaviour
     [Header("References")]
     [SerializeField] private AnomalyController anomalyController;
     [SerializeField] private LevelManager levelManager;
+    [SerializeField] private StickyNoteController stickyNoteController;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip soundEffect;
 
@@ -16,16 +17,23 @@ public class NoAnomalyButton : MonoBehaviour
     {
         anomalyController = FindAnyObjectByType<AnomalyController>();
         levelManager = FindAnyObjectByType<LevelManager>();
+        stickyNoteController = FindAnyObjectByType<StickyNoteController>();
     }
 
     public void ButtonPressed()
     {
+        if (stickyNoteController != null && !stickyNoteController.HasReadNote)
+        {
+            return;
+        }
+
         StartCoroutine(StartAction());
     }
 
     private IEnumerator StartAction()
     {
-        audioSource.PlayOneShot(soundEffect);
+        if (audioSource != null && soundEffect != null)
+            audioSource.PlayOneShot(soundEffect);
 
         yield return new WaitForSeconds(actionCoolDown);
 

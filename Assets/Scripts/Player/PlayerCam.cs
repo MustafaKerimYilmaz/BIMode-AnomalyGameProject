@@ -21,11 +21,16 @@ public class PlayerCam : MonoBehaviour
 
     private void Update()
     {
+        if (GameMenuManager.isGamePaused) 
+        {
+            return; 
+        }
+
         if (playerController != null && !playerController.canMove) 
             return;
 
-        float mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sensX;
-        float mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * sensY;
+        float mouseX = Input.GetAxisRaw("Mouse X") * sensX;
+        float mouseY = Input.GetAxisRaw("Mouse Y") * sensY;
 
         yRotation += mouseX;
         xRotation -= mouseY;

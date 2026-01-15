@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
@@ -9,18 +10,24 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private AnomalyController anomalyController;
     [SerializeField] private LightsController lightsController;
     [SerializeField] private PPController ppController;
+    [SerializeField] private SoundsController soundsController; 
+    [SerializeField] private Door door;
 
     [Header("Settings")]
     [SerializeField] private float darkDuration = 1.5f;
 
-    private int _currentLevelNumber = 0;
+    private int _currentLevelNumber = 1;
     private bool _isChangingLevel = false;
 
     private void Start()
     {
-        ppController.ResetPPAmount();
-        _currentLevelNumber = 0;
+        if(ppController != null) ppController.ResetPPAmount();
+        
+        _currentLevelNumber = 1;
         UpdateLevelText();
+
+        anomalyController.ResetAllAnomalies();
+        anomalyController.SetAnomalies(_currentLevelNumber); 
     }
 
     public void NextLevel()
@@ -37,8 +44,14 @@ public class LevelManager : MonoBehaviour
     {
         _isChangingLevel = true;
         
-        ppController.SetUpdateStatus(false);
-        lightsController.TurnOffLights();
+        if(ppController != null) ppController.SetUpdateStatus(false);
+        if(lightsController != null) lightsController.TurnOffLights();
+
+        if (door != null)
+        {
+            door.Close();
+            door.SetLevelTransitionLock(true);
+        }
         
         yield return new WaitForSeconds(darkDuration);
 
@@ -46,7 +59,8 @@ public class LevelManager : MonoBehaviour
         {
             if (_currentLevelNumber >= 8)
             {
-                Debug.Log("You WIN!");
+                SceneManager.LoadScene("WinScene");
+                yield break; 
             }
             else
             {
@@ -55,23 +69,33 @@ public class LevelManager : MonoBehaviour
         }
         else
         {
-            _currentLevelNumber = 0;
+            _currentLevelNumber = 1;
         }
 
         UpdateLevelText();
 
         anomalyController.ResetAllAnomalies();
-        anomalyController.SetAnomalies();
+        anomalyController.SetAnomalies(_currentLevelNumber); 
     
-        lightsController.StopFlicker(); 
+        if(lightsController != null) lightsController.StopFlicker(); 
+
+        if (soundsController != null)
+        {
+            soundsController.ResetAllAudio();
+        }
+
+        if (door != null)
+        {
+            door.SetLevelTransitionLock(false); 
+        }
 
         _isChangingLevel = false;
-        ppController.SetUpdateStatus(true);
+        if(ppController != null) ppController.SetUpdateStatus(true);
     }
 
     private void UpdateLevelText()
     {
         if (levelNumberText != null)
-            levelNumberText.text = _currentLevelNumber.ToString();
+            levelNumberText.text = ("Day: " + _currentLevelNumber.ToString());
     }
 }

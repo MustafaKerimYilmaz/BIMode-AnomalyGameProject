@@ -14,7 +14,7 @@ public class PPController : MonoBehaviour
     [SerializeField] private float minDistance = 2f;
 
     [Header("Smooth Settings")]
-    [SerializeField] private float lerpSpeed = 5f; // Geçiş hızı (Yüksek değer = daha hızlı)
+    [SerializeField] private float lerpSpeed = 5f;
 
     private Vignette vignette;
     private ChromaticAberration chromatic;
@@ -40,22 +40,18 @@ public class PPController : MonoBehaviour
 
     private void Update()
     {
-        // 1. Hedef Yoğunluğu Belirle
         if (_canUpdate && enemy != null && enemy.activeSelf)
         {
             float distance = Vector3.Distance(player.transform.position, enemy.transform.position);
-            // InverseLerp ile mesafeyi 0-1 arasına normalize et
             _targetIntensity = Mathf.InverseLerp(maxDistance, minDistance, distance);
         }
         else
         {
-            _targetIntensity = 0f; // Update kapalıysa veya düşman yoksa hedef 0
+            _targetIntensity = 0f;
         }
 
-        // 2. Yumuşak Geçiş (Lerp) Uygula
         _currentIntensity = Mathf.Lerp(_currentIntensity, _targetIntensity, Time.deltaTime * lerpSpeed);
 
-        // 3. Değerleri Post-Process'e Yaz
         ApplyEffectValues(_currentIntensity);
     }
 
@@ -74,7 +70,6 @@ public class PPController : MonoBehaviour
         if (!status) 
         {
             _targetIntensity = 0f;
-            // Not: _currentIntensity'i sıfırlamıyoruz ki geçiş hala yumuşak olsun
         }
     }
 

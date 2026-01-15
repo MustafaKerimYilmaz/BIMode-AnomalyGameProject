@@ -4,24 +4,19 @@ public class WindyArea : MonoBehaviour
 {
     [SerializeField] private SoundsController soundsController;
 
-    private void Awake()
-    {
-        soundsController = FindAnyObjectByType<SoundsController>();
-    }
-
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "Player")
+        if(other.CompareTag("Player"))
         {
-            soundsController.ChangeEnvironmentAudio();
+            soundsController.EnterWindyArea();
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if(other.tag == "Player")
+        if(other.CompareTag("Player"))
         {
-            soundsController.ChangeEnvironmentAudio();
+            soundsController.ExitWindyArea();
         }
     }
 }

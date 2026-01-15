@@ -4,7 +4,6 @@ public class PlayerController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Transform orientation;
-    [SerializeField] private HeadBobController headBobController;
     [SerializeField] private SoundsController soundsController;
 
     [Header("Movement Settings")]
@@ -19,7 +18,7 @@ public class PlayerController : MonoBehaviour
     public bool canMove = true;
 
     private float _horizontalInput;
-    private float _verticalInput;  
+    private float _verticalInput;   
     private float _currentSpeed;
 
     Vector3 _moveDirection;
@@ -74,18 +73,10 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(sprintKey) && (_horizontalInput != 0 || _verticalInput != 0))
         {
             _currentSpeed = runSpeed;
-            if (headBobController != null) 
-            {
-                headBobController.ChangeAmountOfBob(20f, 0.01f);
-            }
         }
         else
         {
             _currentSpeed = walkSpeed;
-            if (headBobController != null) 
-            {
-                headBobController.ChangeAmountOfBob(10f, 0.005f);
-            }
         }
     }
 
@@ -121,6 +112,17 @@ public class PlayerController : MonoBehaviour
         bool isRunning = Input.GetKey(sprintKey) && isMoving;
 
         soundsController.UpdateFootsteps(isMoving, isRunning);
+    }
+    public void ToggleControls(bool state)
+    {
+        canMove = state;
+        
+        if (!state)
+        {
+            _rigidbody.linearVelocity = Vector3.zero;
+            _horizontalInput = 0;
+            _verticalInput = 0;
+        }
     }
 
     public Vector3 GetVelocity()

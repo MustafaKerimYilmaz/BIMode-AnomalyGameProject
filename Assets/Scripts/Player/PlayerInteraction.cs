@@ -23,14 +23,12 @@ public class PlayerInteraction : MonoBehaviour
         RaycastHit hit;
         Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
 
-        //if colliders with anything within player reach
         if(Physics.Raycast(ray, out hit, playerReach))
         {
-            if(hit.collider.tag == "Interactable") // if looking at an interactable object
+            if(hit.collider.tag == "Interactable")
             {
                 Interactable newInteractable = hit.collider.GetComponent<Interactable>();
 
-                //if there is a currentInterectable and it is not the newInteractable
                 if(_currentInteractable && newInteractable != _currentInteractable)
                 {
                     DisableCurrentInteractable();
@@ -40,17 +38,17 @@ public class PlayerInteraction : MonoBehaviour
                 {
                     SetNewCurrentInteractable(newInteractable);
                 }
-                else // if new interactable is not enabled
+                else
                 {
                     DisableCurrentInteractable();
                 }
             }
-            else // if not an interactable
+            else
             {
                 DisableCurrentInteractable();
             }
         }
-        else // if nothing in reach
+        else
         {
             DisableCurrentInteractable();
         }

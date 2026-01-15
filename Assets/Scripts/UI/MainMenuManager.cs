@@ -6,12 +6,13 @@ public class MainMenuManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private GameObject creditsMenu;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip buttonClickSound;
 
     public void StartGame()
     {
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("ToyStore");
     }
 
     public void SettingMenu()
@@ -22,11 +23,20 @@ public class MainMenuManager : MonoBehaviour
         settingsPanel.SetActive(true);
     }
 
+    public void CreditsMenu()
+    {
+        ButtonClickSound();
+
+        mainMenuPanel.SetActive(false);
+        creditsMenu.SetActive(true);
+    }
+
     public void ReturnMainMenu()
     {
         ButtonClickSound();
 
         settingsPanel.SetActive(false);
+        creditsMenu.SetActive(false);
         mainMenuPanel.SetActive(true);
     }
 

@@ -4,16 +4,15 @@ using UnityEngine;
 [System.Serializable]
 public class AnomalyProp
 {
-    public string propName; //Name of the object
-    public GameObject normalObject; //Normal version of the object
-    public GameObject anomalyObject; //Anomaly version of the object
+    public string propName;
+    public GameObject normalObject;
+    public GameObject anomalyObject;
 }
 
 public class AnomalyController : MonoBehaviour
 {
     [SerializeField] private GameObject chasingEnemy;
 
-    // The list which include all props in the scene
     public List<AnomalyProp> allProps;
     [SerializeField] private float anomalySpawnChance = 50f;
     [SerializeField] private float enemySpawnChance = 20f;
@@ -23,14 +22,17 @@ public class AnomalyController : MonoBehaviour
     private void Start()
     {
         ResetAllAnomalies();
-        SetAnomalies();
     }
+    public void SetAnomalies(int currentDay)
+    {   
+        if (currentDay <= 1)
+        {
+            _isThereAnomaly = false;
+            return;
+        }
 
-    public void SetAnomalies()
-    {   
         float chance = Random.Range(0f, 100f);
 
-        // If chance smaller than spawnChance state continue
         if(chance <= anomalySpawnChance)
         {
             float enemyChance = Random.Range(0f, 100f);
@@ -38,13 +40,12 @@ public class AnomalyController : MonoBehaviour
             if(enemyChance <= enemySpawnChance)
             {
                 chasingEnemy.SetActive(true);
+                _isThereAnomaly = true;
             }
-
             else
             {
                 int index = Random.Range(0, allProps.Count);
 
-                //The anomaly spawns at the scene
                 if(allProps[index] != null)
                 {
                     allProps[index].normalObject.SetActive(false);
@@ -58,7 +59,7 @@ public class AnomalyController : MonoBehaviour
 
     public void ResetAllAnomalies()
     {
-        if(chasingEnemy.gameObject.activeSelf)
+        if(chasingEnemy != null && chasingEnemy.activeSelf)
             chasingEnemy.SetActive(false);
 
         foreach (AnomalyProp prop in allProps)

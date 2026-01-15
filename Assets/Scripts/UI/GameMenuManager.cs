@@ -8,6 +8,7 @@ public class GameMenuManager : MonoBehaviour
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip buttonClickSound;
+    [SerializeField] private PlayerController playerController;
 
     public static bool isGamePaused = false; 
 
@@ -29,19 +30,24 @@ public class GameMenuManager : MonoBehaviour
         
         GameMenuPanel.SetActive(true);
 
+        if (playerController != null) 
+        {
+            playerController.ToggleControls(false); 
+        }
+
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
     public void ContinueGame()
     {
-
         isGamePaused = false;
-        
+        Time.timeScale = 1f;
+
         GameMenuPanel.SetActive(false);
         settingsPanel.SetActive(false);
         
-        Time.timeScale = 1f;
+        if (playerController != null) playerController.ToggleControls(true);
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -50,7 +56,6 @@ public class GameMenuManager : MonoBehaviour
     public void SettingMenu()
     {
         ButtonClickSound();
-
         GameMenuPanel.SetActive(false);
         settingsPanel.SetActive(true);
     }
@@ -58,7 +63,6 @@ public class GameMenuManager : MonoBehaviour
     public void ReturnGameMenu()
     {
         ButtonClickSound();
-        
         settingsPanel.SetActive(false);
         GameMenuPanel.SetActive(true);
     }
@@ -66,7 +70,6 @@ public class GameMenuManager : MonoBehaviour
     public void ReturnMainMenu()
     {
         ButtonClickSound();
-
         Time.timeScale = 1f;
         isGamePaused = false;
         SceneManager.LoadScene("MainMenu");
@@ -75,12 +78,12 @@ public class GameMenuManager : MonoBehaviour
     public void QuitGame()
     {
         ButtonClickSound();
-
         Application.Quit();
     }
 
     private void ButtonClickSound()
     {
-        audioSource.PlayOneShot(buttonClickSound);
+        if (audioSource != null && buttonClickSound != null)
+            audioSource.PlayOneShot(buttonClickSound);
     }
 }

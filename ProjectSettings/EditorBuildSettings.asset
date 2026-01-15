@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenu.unity
     guid: 5b24954858783b44381df3ba1ab34436
   - enabled: 1
-    path: Assets/ToyStore.unity
+    path: Assets/Scenes/ToyStore.unity
     guid: 5c9f2a2bc9cbac343931e3c401ee2400
   - enabled: 1
     path: Assets/Scenes/WinScene.unity

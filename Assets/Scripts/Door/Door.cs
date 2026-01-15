@@ -1,13 +1,15 @@
 using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(AudioSource))]
 public class Door : MonoBehaviour
 {
     [Header("Settings")]
     [SerializeField] public bool IsOpen = true;
     [SerializeField] private bool IsRotatingDoor = true;
     [SerializeField] private float Speed = 1f;
+    
+    [SerializeField] private bool _isNoteTaken = false; 
+    private bool _isLockedByManager = false;
 
     [Header("RotationAmount")]
     [SerializeField] private float RotationAmount = 90f;
@@ -16,6 +18,9 @@ public class Door : MonoBehaviour
     [Header("Audio Settings")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip doorSound;
+    [SerializeField] private AudioClip lockedSound;
+    [SerializeField] private float LockedSoundCooldown = 1.5f; 
+    private float _nextLockedSoundTime = 0f; 
 
     private Vector3 StartRotation;
     private Vector3 Forward;
@@ -30,9 +35,31 @@ public class Door : MonoBehaviour
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
     }
+    
+    public void UnlockDoor()
+    {
+        _isNoteTaken = true;
+    }
+
+    public void SetLevelTransitionLock(bool state)
+    {
+        _isLockedByManager = state;
+    }
 
     public void Open(Vector3 UserPosition)
     {
+        if (this == null) return;
+
+        if (_isLockedByManager || !_isNoteTaken) 
+        {
+            if (Time.time >= _nextLockedSoundTime)
+            {
+                if(lockedSound != null) PlaySound(lockedSound);
+                _nextLockedSoundTime = Time.time + LockedSoundCooldown;
+            }
+            return; 
+        }
+
         if(!IsOpen)
         {
             if(AnimationCoroutine != null)
@@ -49,7 +76,7 @@ public class Door : MonoBehaviour
             }
         }
     }
-
+    
     private IEnumerator DoRotationOpen(float ForwardAmount)
     {
         Quaternion startRotation = transform.rotation;
@@ -69,6 +96,8 @@ public class Door : MonoBehaviour
         float time = 0;
         while(time < 1)
         {
+            if (this == null) yield break;
+
             transform.rotation = Quaternion.Slerp(startRotation, endRotation, time);
             yield return null;
             time += Time.deltaTime * Speed;
@@ -77,6 +106,8 @@ public class Door : MonoBehaviour
 
     public void Close()
     {
+        if (this == null) return;
+
         if(IsOpen)
         {
             if(AnimationCoroutine != null)
@@ -103,6 +134,8 @@ public class Door : MonoBehaviour
         float time = 0;
         while(time < 1)
         {
+            if (this == null) yield break;
+
             transform.rotation = Quaternion.Slerp(startRotation, endRotation, time);
             yield return null;
             time += Time.deltaTime * Speed;
@@ -111,9 +144,8 @@ public class Door : MonoBehaviour
 
     private void PlaySound(AudioClip clip)
     {
-        if (audioSource != null && clip != null)
-        {         
-            audioSource.PlayOneShot(clip);
-        }
+        if (this == null || audioSource == null || clip == null) return;
+     
+        audioSource.PlayOneShot(clip);
     }
 }

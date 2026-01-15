@@ -13,6 +13,12 @@ public class StickyNoteController : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip soundEffect;
     
+    [Header("Door Unlock Settings")]
+    [SerializeField] private Door doorToUnlock;
+
+    [Header("Text Settings")]
+    [SerializeField] private GameObject textOnBlackboard;
+
     [Header("Post Processing")]
     [SerializeField] private Volume globalVolume;
     private DepthOfField _dof;
@@ -25,14 +31,17 @@ public class StickyNoteController : MonoBehaviour
 
     private MeshRenderer _tableNoteRenderer;
     private Collider _tableNoteCollider;
-    private bool isNoteTaken = false; 
+    public bool IsNoteTaken { get; private set; } = false; 
+    public bool HasReadNote { get; private set; } = false; 
+
     private float _nextActionTime = 0f;
 
     private void Awake()
     {
         if (stickyNoteOnTable != null)
         {
-            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null) 
+                audioSource = GetComponent<AudioSource>();
 
             _tableNoteRenderer = stickyNoteOnTable.GetComponent<MeshRenderer>();
             _tableNoteCollider = stickyNoteOnTable.GetComponent<Collider>();
@@ -46,12 +55,12 @@ public class StickyNoteController : MonoBehaviour
 
     private void Update()
     {
-        if (isNoteTaken && Input.GetKeyDown(KeyCode.F))
+        if (IsNoteTaken && Input.GetKeyDown(KeyCode.F))
         {
             if (Time.time >= _nextActionTime) PutNoteBack();
         }
         
-        float targetDistance = isNoteTaken ? focusDistance : normalDistance;
+        float targetDistance = IsNoteTaken ? focusDistance : normalDistance;
         if (_dof != null)
         {
             _dof.focusDistance.value = Mathf.Lerp(_dof.focusDistance.value, targetDistance, Time.deltaTime * transitionSpeed);
@@ -60,33 +69,41 @@ public class StickyNoteController : MonoBehaviour
 
     public void TakeNote()
     {
-        if (isNoteTaken || Time.time < _nextActionTime) return;
+        if (IsNoteTaken || Time.time < _nextActionTime) return;
 
-        isNoteTaken = true;
+        IsNoteTaken = true;
+        HasReadNote = true;
+        
+        if (doorToUnlock != null)
+        {
+            doorToUnlock.UnlockDoor();
+        }
+
         playerController.canMove = false;
-
         audioSource.PlayOneShot(soundEffect);   
-
         _nextActionTime = Time.time + actionCooldown;
 
-        _tableNoteRenderer.enabled = false;
-        _tableNoteCollider.enabled = false;
-        stickyNoteOnTableText.enabled = false;
-        stickyNoteOnCamera.SetActive(true);
+        if (_tableNoteRenderer != null) _tableNoteRenderer.enabled = false;
+        if (_tableNoteCollider != null) _tableNoteCollider.enabled = false;
+
+        if (textOnBlackboard != null)
+        {
+            textOnBlackboard.SetActive(false);
+        }
+
+        if (stickyNoteOnCamera != null) stickyNoteOnCamera.SetActive(true);
     }
 
     private void PutNoteBack()
     {
-        isNoteTaken = false; 
+        IsNoteTaken = false; 
         playerController.canMove = true;
-
         audioSource.PlayOneShot(soundEffect);
-
         _nextActionTime = Time.time + actionCooldown;
 
-        _tableNoteRenderer.enabled = true;
-        _tableNoteCollider.enabled = true;
-        stickyNoteOnTableText.enabled = true;
-        stickyNoteOnCamera.SetActive(false);
+        if (_tableNoteRenderer != null) _tableNoteRenderer.enabled = true;
+        if (_tableNoteCollider != null) _tableNoteCollider.enabled = true;
+
+        if (stickyNoteOnCamera != null) stickyNoteOnCamera.SetActive(false);
     }
 }

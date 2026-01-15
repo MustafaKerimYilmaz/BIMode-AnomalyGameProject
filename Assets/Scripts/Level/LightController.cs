@@ -1,11 +1,13 @@
 using UnityEngine;
 using System.Collections;
+using TMPro;
 
 public class LightsController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Light[] lights;
     [SerializeField] private AudioSource audioSource;
+    [SerializeField] private GameObject linkedTextObject; 
 
     [Header("Audio Settings")]
     [SerializeField] private AudioClip lightTurnOnSound;
@@ -19,9 +21,6 @@ public class LightsController : MonoBehaviour
     [SerializeField] private float _flickerSpeed = 0.1f;
     [SerializeField] private Color enemyChasingColor;
 
-    [Header("EnemySettings")]
-    [SerializeField] private float LightsTurnOffDuration;
-
     private Coroutine _flickerCoroutine;
     private Color _defaultColor;
 
@@ -33,7 +32,7 @@ public class LightsController : MonoBehaviour
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
 
         if (lights != null && lights.Length > 0)
-        {        
+        {         
             _defaultIntensity = lights[0].intensity;
             _defaultColor = lights[0].color;
         }
@@ -52,6 +51,8 @@ public class LightsController : MonoBehaviour
             if (light != null) light.intensity = _defaultIntensity;
         }
 
+        if (linkedTextObject != null) linkedTextObject.SetActive(true);
+
         _areLightsOn = true;
     }
     
@@ -67,16 +68,9 @@ public class LightsController : MonoBehaviour
             if (light != null) light.intensity = 0;
         }
 
-        _areLightsOn = false;
-    }
+        if (linkedTextObject != null) linkedTextObject.SetActive(false);
 
-    private void ForceTurnOnLights()
-    {
-        foreach (Light light in lights)
-        {
-            if (light != null) light.intensity = _defaultIntensity;
-        }
-        _areLightsOn = true;
+        _areLightsOn = false;
     }
 
     public void StartFlicker()
@@ -98,6 +92,11 @@ public class LightsController : MonoBehaviour
 
         StopFlickerSound();
 
+        if (!_areLightsOn)
+        {
+            PlayOneShotSound(lightTurnOnSound);
+        }
+
         foreach (Light light in lights)
         {
             if (light != null)
@@ -106,6 +105,9 @@ public class LightsController : MonoBehaviour
                 light.color = _defaultColor;
             }
         }
+
+        if (linkedTextObject != null) linkedTextObject.SetActive(true);
+
         _areLightsOn = true;
     }
 
@@ -120,11 +122,16 @@ public class LightsController : MonoBehaviour
                 if (light != null) light.intensity = randomIntensity;
             }
 
+            if (linkedTextObject != null)
+            {
+                linkedTextObject.SetActive(randomIntensity > (_maxIntensity * 0.2f));
+            }
+
             yield return new WaitForSeconds(_flickerSpeed);
         }
     }
 
-    public IEnumerator EnemyStartsFollow()
+    public IEnumerator EnemyStartsFollow(float duration)
     {
         if (_isEnemySequenceActive) yield break;
 
@@ -133,7 +140,7 @@ public class LightsController : MonoBehaviour
         TurnOffLights(); 
         EnemyChasingColor();
 
-        yield return new WaitForSeconds(LightsTurnOffDuration);
+        yield return new WaitForSeconds(duration);
 
         TurnOnLights(); 
         StartFlicker();
@@ -148,21 +155,11 @@ public class LightsController : MonoBehaviour
             light.color = enemyChasingColor;
         }
     }
-
-    public void DefaultLightColor()
-    {
-        foreach (Light light in lights)
-        {
-            light.color = _defaultColor;
-        }
-    }
-
+    
     private void PlayOneShotSound(AudioClip clip)
     {
         if (clip != null && audioSource != null)
-        {
             audioSource.PlayOneShot(clip);
-        }
     }
 
     private void PlayFlickerLoop()
